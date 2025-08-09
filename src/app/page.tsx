@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import dynamic from 'next/dynamic';
 import { SearchCard } from '@/components/search-card';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,7 +19,6 @@ const TranslationResult = dynamic(() => import('@/components/translation-result'
 const TextToSpeechForm = dynamic(() => import('@/components/text-to-speech-form').then(mod => mod.TextToSpeechForm), {
   ssr: false
 });
-
 
 const allWords = [
   { german: 'Freundschaft', arabic: 'صداقة' },
@@ -58,7 +57,7 @@ export default function Home() {
   useEffect(() => {
     const intervalId = setInterval(() => {
       setWordsToTranslate(shuffleWords());
-    }, 60000); // 1 minute in milliseconds
+    }, 60000); // 1 minute
 
     return () => clearInterval(intervalId);
   }, []);

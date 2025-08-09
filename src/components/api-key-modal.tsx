@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useApiKey } from '@/context/api-key-context';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -14,7 +14,21 @@ export function ApiKeyModal() {
   const { isModalOpen, setIsModalOpen, setApiKey } = useApiKey();
   const [key, setKey] = useState('');
   const [showKey, setShowKey] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
+
+  // Use useEffect to load the key from local storage when the modal opens
+  useEffect(() => {
+    if (isModalOpen) {
+      const storedKey = localStorage.getItem('geminiAPIKey');
+      if (storedKey) {
+        setKey(storedKey);
+      } else {
+        setKey('');
+      }
+      setError(null);
+      setShowKey(false);
+    }
+  }, [isModalOpen]);
 
   const handleSave = () => {
     if (key.trim() === '') {
@@ -36,13 +50,13 @@ export function ApiKeyModal() {
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-           {error && (
-             <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
             </Alert>
-           )}
+          )}
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="api-key" className="text-right col-span-4 text-left">
               Gemini API Key
@@ -69,9 +83,9 @@ export function ApiKeyModal() {
           </div>
         </div>
         <DialogFooter>
-           <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">
-             <Button variant="link">Get an API Key</Button>
-           </a>
+          <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">
+            <Button variant="link">Get an API Key</Button>
+          </a>
           <Button type="button" onClick={handleSave}>Save changes</Button>
         </DialogFooter>
       </DialogContent>
