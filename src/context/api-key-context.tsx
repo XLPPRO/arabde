@@ -1,36 +1,31 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect } from 'react';
 
-type ApiKeyContextType = {
-  apiKey: string | null;
-  setApiKey: (key: string) => void;
-  isModalOpen: boolean;
-  setIsModalOpen: (open: boolean) => void;
-};
+const ApiKeyContext = createContext(null);
 
-const ApiKeyContext = createContext<ApiKeyContextType | undefined>(undefined);
-
-export function ApiKeyProvider({ children }: { children: React.ReactNode }) {
-  const [apiKey, setApiKeyState] = useState<string | null>(null);
+export function ApiKeyProvider({ children }) {
+  const [apiKey, setApiKey] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Load the API key from local storage on initial mount
   useEffect(() => {
-    const storedKey = localStorage.getItem("gemini_api_key");
+    const storedKey = localStorage.getItem('geminiAPIKey');
     if (storedKey) {
-      setApiKeyState(storedKey);
+      setApiKey(storedKey);
     } else {
-      setIsModalOpen(true); // Show modal if no key saved
+      setIsModalOpen(true); // Open the modal if no key is found
     }
   }, []);
 
-  const setApiKey = (key: string) => {
-    setApiKeyState(key);
-    localStorage.setItem("gemini_api_key", key);
+  // Function to save the API key to local storage and update state
+  const saveApiKey = (key) => {
+    localStorage.setItem('geminiAPIKey', key);
+    setApiKey(key);
   };
 
   return (
-    <ApiKeyContext.Provider value={{ apiKey, setApiKey, isModalOpen, setIsModalOpen }}>
+    <ApiKeyContext.Provider value={{ apiKey, setApiKey: saveApiKey, isModalOpen, setIsModalOpen }}>
       {children}
     </ApiKeyContext.Provider>
   );
@@ -39,7 +34,7 @@ export function ApiKeyProvider({ children }: { children: React.ReactNode }) {
 export function useApiKey() {
   const context = useContext(ApiKeyContext);
   if (!context) {
-    throw new Error("useApiKey must be used within ApiKeyProvider");
+    throw new Error('useApiKey must be used within an ApiKeyProvider');
   }
   return context;
 }
